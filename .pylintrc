@@ -1,0 +1,5 @@
+[IGNORE ERRORS]
+disable=C0116, # missing function docstrings
+        C0114, # missing module docstrings
+        E0401, # import error
+        C0103  # snake case naming
