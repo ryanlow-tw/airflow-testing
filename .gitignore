@@ -1,1 +1,3 @@
 venv/
+install-airflow.sh
+__pycache__/
