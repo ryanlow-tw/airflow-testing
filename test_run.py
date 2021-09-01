@@ -1,5 +1,3 @@
-import time
-import pytest
 from run import get_airflow_run_duration
 
 
