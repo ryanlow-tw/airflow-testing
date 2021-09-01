@@ -26,4 +26,5 @@ if __name__ == "__main__":
         average_time = (end - start) / NUM_RUNS
         print(f"Time taken for wordcount, filesize: {size} is {average_time:.2f} seconds")
         with open('results.csv', 'a') as f:
-            f.write(f"{size},{average_time}\n")
+            size_without_mb = size[:-2]
+            f.write(f"{size_without_mb},{average_time}\n")
