@@ -17,18 +17,19 @@ def get_airflow_run_duration(num_runs, size):
     end = time.time()
     return end - start
 
+def write_file(input_1, input_2):
+    with open('results.csv', 'a') as f:
+        f.write(f"{input_1},{input_2}\n")
+
 def main():
     filesizes = ["1MB", "5MB", "10MB", "20MB","100MB"]
     NUM_RUNS = 3
-    with open('results.csv', 'a') as f:
-        f.write("size,average_time\n")
+    write_file(input_1="size", input_2="average_time")
     for size in filesizes:
         average_time = get_airflow_run_duration(num_runs=NUM_RUNS, size=size)
         print(f"Time taken for wordcount, filesize: {size} is {average_time:.2f} seconds")
-        with open('results.csv', 'a') as f:
-            size_without_mb = size[:-2]
-            f.write(f"{size_without_mb},{average_time}\n")
-
+        size_without_mb = size[:-2]
+        write_file(input_1=size_without_mb, input_2=average_time)
 
 if __name__ == "__main__":
     main()
