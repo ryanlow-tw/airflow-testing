@@ -2,22 +2,18 @@ import os
 from faker import Faker
 
 
-def generate_text_file_in_MB(size):
-    fake = Faker()
-    FINAL_FILESIZE = size * 1000000
-    FILENAME = f'data/words{size}MB.txt'
-    filesize = 0
-    i = 0
-    while filesize < FINAL_FILESIZE:
-        with open(FILENAME, 'a') as f:
-            text = fake.text()
-            f.write(text)
-        filesize = os.path.getsize(FILENAME)
-        i += 1
-        print(f"This is loop number {i}")
-        print(f"{FILENAME} current file size is {filesize}")
+chars_in_sentence = 100
 
-filesizes = [1,5,10,20,100]
+num_sentences = [10000,20000,50000,100000,200000,500000,1000000,2000000,5000000,10000000]
 
-for fsize in filesizes:
-    generate_text_file_in_MB(fsize)
+total_chars_in_sentence = list(
+    map(
+        lambda sentences: sentences * chars_in_sentence, num_sentences))
+
+faker = Faker()
+for sentence in total_chars_in_sentence:
+    filename = f'data/words_{sentence // 100}sentence.txt'
+    with open(filename, 'a') as f:
+        f.write(faker.text(sentence))
+    filesize = os.path.getsize(f'data/words_{sentence // 100}sentence.txt')
+    print(f'num sentence: {sentence}, filesize: {filesize}')
