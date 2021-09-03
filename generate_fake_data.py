@@ -7,8 +7,8 @@ def main():
     num_sentences = [10000,20000,50000,100000,200000,500000,1000000,2000000,5000000,10000000]
 
     total_chars_in_sentence = list(
-        map(
-            lambda sentences: sentences * chars_in_sentence, num_sentences))
+        map(lambda sentences: sentences * chars_in_sentence, num_sentences)
+        )
 
     faker = Faker()
     for sentence in total_chars_in_sentence:
