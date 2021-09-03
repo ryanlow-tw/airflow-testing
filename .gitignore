@@ -6,3 +6,7 @@ logs/
 airflow-*/
 *.csv
 .pytest_cache/
+test-output/
+scratchpad.py
+.pytest_cache
+test.logs
