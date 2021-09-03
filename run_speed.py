@@ -2,6 +2,7 @@ import os
 import logging
 from datetime import datetime
 import time
+from airflow.models import Variable as AirflowEnvVariable
 
 now = datetime.now()
 filename = f'logs/airflow-logs{now}-{now.hour}-{now.minute}-{now.second}'
@@ -9,9 +10,10 @@ logging.basicConfig(filename=filename, encoding='utf-8', level=logging.DEBUG)
 
 def get_airflow_run_duration(num_runs, filesize):
     duration = 0
+    AirflowEnvVariable.set(key="num_core", value=1)
+    AirflowEnvVariable.set(key="filesize", value=filesize)
     for i in range(num_runs):
         print(f"This is run number {i+1}")
-        run_bash_command(f"airflow variables set filesize {filesize}")
         start = time.time()
         run_bash_command("airflow tasks test wordcount_dag count_words_task 2021-08-30")
         end = time.time()
