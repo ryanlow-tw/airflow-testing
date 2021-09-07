@@ -3,5 +3,7 @@ disable=C0116, # missing function docstrings
         C0114, # missing module docstrings
         E0401, # import error
         C0103, # snake case naming
-        W0611  # unused import
+        W0611, # unused import
+        C0301, # line too long
+        C0200  # use enumerate
         
