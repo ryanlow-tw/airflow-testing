@@ -1,19 +1,42 @@
-import os
-import logging
 import glob
+import os
+from shutil import rmtree
+from datetime import datetime, timedelta
+import pytest
+from airflow import DAG
+from airflow.operators.trigger_dagrun import TriggerDagRunOperator
+from airflow.utils.trigger_rule import TriggerRule
 
-logging.basicConfig(filename='test.log', encoding='utf-8', level=logging.DEBUG)
-SCALA_CLASS = "thoughtworks.wordcount.WordCount"
-INPUT_FILE = "/Users/ryanlow/Documents/Projects/data_engineering/airflow-testing/data/words_10000sentence.txt"
-OUTPUT_FILE = "/Users/ryanlow/Documents/Projects/data_engineering/airflow-testing/test-output/actual.txt"
-JAR_FILE = "/Users/ryanlow/Documents/Projects/data_engineering/transformations/target/scala-2.11/tw-pipeline_2.11-0.1.0-SNAPSHOT.jar"
-command= f"spark-submit --class {SCALA_CLASS} --master local {JAR_FILE} {INPUT_FILE} {OUTPUT_FILE}"
+OUTPUT_PATH = "test-output/actual/"
 
-def test_that_wordcount_class_should_return_processed_txt_file():
-    stream = os.popen(command)
-    logging.debug(stream.read())
-    actual_files = sorted(glob.glob('test-output/actual.txt/*.csv'))
-    expected_files = sorted(glob.glob('test-output/expected.txt/*.csv'))
+DEFAULT_ARGS = {
+        'owner': 'airflow',
+        'depends_on_past': False,
+        'start_date': datetime(2021, 8, 30),
+        'email': ['airflow@example.com'],
+        'email_on_failure': False,
+        'email_on_retry': False,
+        'retries': 1,
+        'retry_delay': timedelta(minutes=5),
+    }
+
+
+@pytest.fixture(scope='module', autouse=True)
+def fixture():
+    if os.path.exists(OUTPUT_PATH):
+        rmtree(OUTPUT_PATH, ignore_errors=False)
+    dag = DAG('test_wordcount_dag', default_args=DEFAULT_ARGS)
+    t1 = TriggerDagRunOperator(task_id='trigger_word_count_dag',
+                                        trigger_dag_id='test_wordcount_dag',
+                                        wait_for_completion=True,
+                                        trigger_rule=TriggerRule.ONE_SUCCESS,
+                                        dag=dag,
+                                        poke_interval=5)
+    t1.execute(context={})
+
+def test_that_calling_airflow_dag_should_return_text_file_with_word_and_count():
+    actual_files = sorted(glob.glob(f'{OUTPUT_PATH}*.csv'))
+    expected_files = sorted(glob.glob('test-output/expected/*.csv'))
 
     assert len(actual_files) == len(expected_files)
     for i in range(len(actual_files)):
@@ -22,4 +45,10 @@ def test_that_wordcount_class_should_return_processed_txt_file():
         with open(expected_files[i], 'r') as f:
             expected_file = f.readlines()
         assert actual_file == expected_file
-        
+
+def test_that_SUCCESS_file_is_in_output_folder():
+
+    SUCCESS_FILE = glob.glob(f"{OUTPUT_PATH}_SUCCESS")
+
+    assert SUCCESS_FILE == [f"{OUTPUT_PATH}_SUCCESS"]
+    
